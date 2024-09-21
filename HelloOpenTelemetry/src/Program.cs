@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using HelloOpenTelemetry.Extensions;
 using Microsoft.OpenApi.Models;
 
@@ -22,7 +23,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
-app.MapGet("/", () => "Hello World!")
+var activitySource = new ActivitySource("HelloOpenTelemetry");
+
+app.MapGet("/", () =>
+    {
+        using var activity = activitySource.StartActivity("Greetings");
+        activity?.SetTag("Informal", "Hi");
+        activity?.SetTag("Formal", "Good afternoon");
+
+        Console.WriteLine(
+            $"Activity: {activity?.OperationName}, Tags: {String.Join(", ", activity?.Tags?.Select(tag => $"{tag.Key}: {tag.Value}") ?? Array.Empty<string>())}");
+
+
+        return "Hello World!";
+    })
     .WithName("GetHelloWorld")
     .WithOpenApi();
 
