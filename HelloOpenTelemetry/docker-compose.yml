@@ -3,8 +3,8 @@ version: "3.9"
 services:
   helloopentelemetry:
     build:
-      context: .
-      dockerfile: ./src/Dockerfile
+      context: ./src
+      dockerfile: Dockerfile
     ports:
       - "5000:8080"
     networks:

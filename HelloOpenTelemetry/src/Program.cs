@@ -1,35 +1,29 @@
-using OpenTelemetry.Logs;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
+using HelloOpenTelemetry.Extensions;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenTelemetry()
-    .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddConsoleExporter()
-    )
-    .WithMetrics(metrics => metrics
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddConsoleExporter()
-        .AddPrometheusExporter()
-    );
-
-builder.Logging.AddOpenTelemetry(logging =>
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
 {
-    // The rest of your setup code goes here
-    logging.AddConsoleExporter();
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hello OpenTelemetry API", Version = "v1" });
 });
 
+builder.AddCustomOpenTelemetry();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hello OpenTelemetry API v1"));
+}
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
-// Configure the HTTP request pipeline.
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "Hello World!")
+    .WithName("GetHelloWorld")
+    .WithOpenApi();
 
 app.Run();

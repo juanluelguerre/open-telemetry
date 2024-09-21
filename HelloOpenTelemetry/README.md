@@ -11,14 +11,14 @@ Sample .Net proyect to test Open Telemetry with Prometheus and Grafana in a simp
 
 1. Clone the repository:
 
-   ```sh
+   ```
    git clone https://github.com/juanluelguerre/open-telemetry.git
    cd your-repository
    ```
 
 2. Build and start the containers using Docker Compose:
-   ```sh
-   docker-compose up --build
+   ```
+   docker-compose -p helloopentelemetry up --build
    ```
 
 ## Usage
@@ -29,18 +29,18 @@ Access the application in your web browser at `http://localhost:port`.
 
 - To stop the containers:
 
-  ```sh
+  ```
   docker-compose down
   ```
 
 - To rebuild the containers without using the cache:
 
-  ```sh
+  ```
   docker-compose build --no-cache
   ```
 
 - To view the logs of the containers:
-  ```sh
+  ```
   docker-compose logs
   ```
 
