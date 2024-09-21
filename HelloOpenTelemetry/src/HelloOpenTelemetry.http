@@ -1,0 +1,6 @@
+@HelloOpenTelemetry_HostAddress = http://localhost:5025
+
+GET {{HelloOpenTelemetry_HostAddress}}/
+Accept: application/json
+
+###

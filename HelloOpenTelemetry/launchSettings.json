@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "helloopentelemetry",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",      
+      "serviceActions": {
+        "helloopentelemetry": "StartDebugging",
+        "grafana": "StartWithoutDebugging",
+        "prometheus": "StartWithoutDebugging"
+      }
+    }    
+  }
+}

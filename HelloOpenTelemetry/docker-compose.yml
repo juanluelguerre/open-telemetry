@@ -1,8 +1,10 @@
-version: '3.9'
+version: "3.9"
 
 services:
-  api:
-    build: .
+  helloopentelemetry:
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
     ports:
       - "5000:8080"
     networks:
@@ -13,7 +15,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./deploy/prometheus/:/etc/prometheus/
     ports:
       - "9090:9090"
     networks:
@@ -24,9 +26,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./dashboards:/var/lib/grafana/dashboards
-      - ./dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
-      - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./deploy/grafana/config/:/etc/grafana/
+      - ./deploy/grafana/dashboards/:/var/lib/grafana/dashboards/
     networks:
       - monitoring
     depends_on:
