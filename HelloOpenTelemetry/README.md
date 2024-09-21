@@ -1,6 +1,8 @@
-# Project Name
+# Hellow Open Telemetry
 
-Sample .Net proyect to test Open Telemetry with Prometheus and Grafana in a simple API Rest.
+This project is a sample application that demonstrates how to integrate a .NET API REst, OpenTelemetry, Prometheus, and Grafana using Visual Studio. It showcases the end-to-end flow of collecting and visualizing application metrics.
+
+![Prometheus and Grafana](assets/Prometheus_And_Graphana.png)
 
 ## Requirements
 
@@ -18,12 +20,12 @@ Sample .Net proyect to test Open Telemetry with Prometheus and Grafana in a simp
 
 2. Build and start the containers using Docker Compose:
    ```
-   docker-compose -p helloopentelemetry up --build
+   docker-compose up --build -d
    ```
 
 ## Usage
 
-Access the application in your web browser at `http://localhost:port`.
+Access the application in your web browser at `http://localhost:5000`.
 
 ## Useful Commands
 
@@ -46,8 +48,8 @@ Access the application in your web browser at `http://localhost:port`.
 
 ## How to Configure your project
 
-- Set `<DockerComposeProjectName>helloopentelemetry</DockerComposeProjectName>` at the root of your `docker-compose.dcproj` file.
--
+- Set `<DockerComposeProjectName>helloopentelemetry</DockerComposeProjectName>` at the root of your `docker-compose.dcproj` file, to name your project.
+- Be sure deploy folder is configured correctly and also referenced in the `docker-compose.yml` file.
 
 ## Contributing
 
