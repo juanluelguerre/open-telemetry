@@ -6,15 +6,37 @@ services:
       context: ./src
       dockerfile: Dockerfile
     ports:
-      - "5000:8080"
+      - "5000:8080" # Application accessible on localhost:8080
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - OTEL_SERVICE_NAME=helloopentelemetry
+      # - ASPNETCORE_URLS=http://+:8080
+      # - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      # - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      # - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://loki:4317
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://otel-collector:4317
     networks:
       - monitoring
     depends_on:
       - prometheus
+      # - loki
+      # - tempo
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./deploy/otel-collector/config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    depends_on:
+      tempo:
+        condition: service_healthy
+    networks:
+      - monitoring
 
   prometheus:
     image: prom/prometheus:latest
@@ -32,21 +54,49 @@ services:
     volumes:
       - ./deploy/grafana/config/:/etc/grafana/
       - ./deploy/grafana/dashboards/:/var/lib/grafana/dashboards/
+      # - ./deploy/grafana/provisioning:/etc/grafana/provisioning/
     networks:
       - monitoring
     depends_on:
       - prometheus
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686" # UI
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP HTTP
+      - loki
+      - tempo
     environment:
-      - COLLECTOR_OTLP_ENABLED=true
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  # Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - ./deploy/loki/local-config.yaml:/etc/loki/local-config.yaml
+      - ./deploy/loki/data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
     networks:
       - monitoring
+
+  # Grafana Tempo
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    volumes:
+      - ./deploy/tempo/tempo.yaml:/etc/tempo/tempo.yaml
+      - ./deploy/tempo/data:/tmp/tempo
+    command: -config.file=/etc/tempo/tempo.yaml
+    ports:
+      - "3200:3200"
+      # - "4317:4317" # OTLP gRPC
+      #- "4318:4318" # OTLP HTTP
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3200/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 networks:
   monitoring:
