@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Net;
 using HelloOpenTelemetry.Extensions;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Logs;
@@ -48,10 +50,33 @@ app.MapGet("/", async (ILoggerFactory loggerFactory) =>
         logger.LogDebug("Sample debug log");
         logger.LogTrace("Sample trace log");
         await httpClient.GetStringAsync("https://example.com");
-
         return "Hello World !!!";
     })
     .WithName("GetHelloWorld")
     .WithOpenApi();
+
+app.MapGet("/exception",  (ILoggerFactory loggerFactory) =>
+    {
+        var ex =  new Exception("This is an exception");
+        
+        var logger = loggerFactory.CreateLogger("HelloOpenTelemetry");
+        logger.LogError(ex, "An exception occurred");
+        
+        throw new HttpRequestException("Random error occurred (simulated)", 
+            ex, 
+            (HttpStatusCode)Random.Shared.Next(400, 600));
+    })
+    .WithName("GetHelloWorldException")
+    .WithOpenApi();
+
+app.MapGet("/meter", (IMeterFactory meterFactory) => {
+    var meter = meterFactory.Create("HelloOpenTelemetryApiMeter");
+    var counter = meter.CreateCounter<long>("counter_meter");
+    counter.Add(1);
+    
+    return "Meter incremented";
+})
+.WithName("GetHelloWorldMeter")
+.WithOpenApi();
 
 app.Run();

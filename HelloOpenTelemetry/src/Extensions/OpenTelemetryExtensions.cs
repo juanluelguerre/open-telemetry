@@ -30,7 +30,9 @@ public static class OpenTelemetryExtensions
                         otlp.Endpoint = new Uri("http://otel-collector:4317");
                         otlp.Protocol = OtlpExportProtocol.Grpc;
                     })
+                    .AddMeter("HelloOpenTelemetryApiMeter")
                     .AddPrometheusExporter()
+                
 
             )
             .WithTracing(
@@ -66,8 +68,6 @@ public static class OpenTelemetryExtensions
                         opts.Endpoint = new Uri("http://otel-collector:4317");
                         opts.Protocol = OtlpExportProtocol.Grpc;
                     });
-
-
                 options.IncludeFormattedMessage = true;
                 options.IncludeScopes = true;
                 options.ParseStateValues = true;
